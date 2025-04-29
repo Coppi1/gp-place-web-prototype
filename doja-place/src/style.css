@@ -19,6 +19,25 @@ a:hover {
   margin: 0 10px;
 }
 
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+}
+
 h1 {
   font-size: 2rem;
   margin-bottom: 1rem;

@@ -4,20 +4,29 @@ import logoGP from '../assets/logoGP.png';
 import {
   S3Client,
   ListObjectsV2Command,
+  GetObjectCommand,
 } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const bucket = 'apps-releases';
 const prefixes = ['doja-conferencia/', 'doja-inventario/'];
 
-// Cria o layout principal
+// Layout principal
 document.querySelector('#app').innerHTML = `
   <div>
     <a href="https://www.grupopereirabrasil.com.br/" target="_blank">
       <img src="${logoGP}" class="logo" alt="Grupo Pereira logo" />
     </a>
-    <h1>Versões Disponíveis</h1>
+    <h1>Versões Disponíveis - Produção</h1>
     <div id="apk-sections"></div>
-    <p class="read-the-docs">Lista gerada diretamente via integração com MinIO</p>
+    <footer class="main-footer bg-white border-top" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; margin-top: 2rem; text-align: center;">
+  <strong>
+      Copyright &copy; 2025
+      <a href="https://www.grupopereirabrasil.com.br/" target="_blank">Grupo Pereira</a>.
+    </strong>
+    <div>Todos os Direitos Reservados</div>
+    <div class="mt-1"><b>Criado por</b> Eduardo Coppi</div>
+  </footer>
   </div>
 `;
 
@@ -25,14 +34,21 @@ document.querySelector('#app').innerHTML = `
 const s3Client = new S3Client({
   region: 'us-east-1',
   endpoint: endpoint,
-  forcePathStyle: true, // essencial para MinIO
+  forcePathStyle: true, 
   credentials: {
     accessKeyId: accessKey,
     secretAccessKey: secretKey,
   },
 });
 
-// Para cada prefixo (aplicativo), cria uma seção e busca seus APKs
+async function getDownloadLink(key) {
+  const command = new GetObjectCommand({
+    Bucket: bucket,
+    Key: key,
+  });
+  return await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // 1h
+}
+
 prefixes.forEach(prefix => {
   const id = prefix.replace(/\W/g, '');
   const section = document.createElement('section');
@@ -44,7 +60,6 @@ prefixes.forEach(prefix => {
   fetchApks(prefix, id);
 });
 
-// Função que busca os APKs usando a SDK AWS
 async function fetchApks(prefix, containerId) {
   try {
     const command = new ListObjectsV2Command({
@@ -54,21 +69,17 @@ async function fetchApks(prefix, containerId) {
 
     const response = await s3Client.send(command);
 
-    const apks = (response.Contents || [])
-      .filter(item => item.Key.endsWith('.apk'))
-      .map(item => {
-        const key = item.Key.replace(prefix, '');
-        const url = `${endpoint}/${bucket}/${encodeURIComponent(item.Key)}`;
-        const lastModified = new Date(item.LastModified);
-        const size = item.Size;
+    const apks = [];
+    for (const item of response.Contents || []) {
+      if (!item.Key.endsWith('.apk')) continue;
 
-        return {
-          key,
-          url,
-          lastModified,
-          sizeMB: (size / 1024 / 1024).toFixed(2) + ' MB',
-        };
-      });
+      const key = item.Key.replace(prefix, '');
+      const url = await getDownloadLink(item.Key);
+      const lastModified = new Date(item.LastModified);
+      const sizeMB = (item.Size / 1024 / 1024).toFixed(2) + ' MB';
+
+      apks.push({ key, url, lastModified, sizeMB });
+    }
 
     const container = document.getElementById(containerId);
     container.innerHTML = '';
@@ -78,17 +89,14 @@ async function fetchApks(prefix, containerId) {
       return;
     }
 
-    // separa por tipo
     const production = apks
       .filter(a => a.key.includes('production') || a.key.includes('-prod-'));
 
     const betas = apks.filter(a => !production.includes(a));
 
-    // ordena por data (mais recente primeiro)
     production.sort((a, b) => b.lastModified - a.lastModified);
     betas.sort((a, b) => b.lastModified - a.lastModified);
 
-    // pega a mais recente
     const latest = production[0];
 
     const latestDiv = document.createElement('div');
@@ -100,9 +108,9 @@ async function fetchApks(prefix, containerId) {
     `;
     container.appendChild(latestDiv);
 
-    // botão para exibir mais
     const button = document.createElement('button');
     button.textContent = 'Mostrar versões anteriores / beta';
+    button.className = 'button-show-more';
     button.style.marginTop = '1rem';
 
     const allDiv = document.createElement('div');

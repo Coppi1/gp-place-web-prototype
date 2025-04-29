@@ -50,3 +50,27 @@ hr {
   color: #666;
   text-align: center;
 }
+
+.button-show-more {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #0051a3;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.button-show-more:hover {
+  background-color: #003f82;
+  transform: translateY(-2px);
+}
+
+.button-show-more:active {
+  background-color: #002e61;
+  transform: translateY(0);
+}

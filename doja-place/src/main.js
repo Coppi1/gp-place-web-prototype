@@ -114,7 +114,13 @@ function renderApkList(apks, containerId, bucket) {
     container.innerHTML += `
       <div>
         <h3>Última versão:</h3>
-        <p><strong><a href="${latest.url}" target="_blank">${latest.key}</a></strong></p>
+        <p>
+          <strong>
+            <a href="#" onclick="window.location.href='${latest.url}'; return false;">
+              ${latest.key}
+            </a>
+          </strong>
+        </p>
         <p>Última modificação: ${latest.lastModified.toLocaleString()}</p>
         <p>Tamanho: ${latest.sizeMB}</p>
       </div>
@@ -154,7 +160,13 @@ function renderApkList(apks, containerId, bucket) {
 function renderApkCard(apk) {
   return `
     <div>
-      <p><strong><a href="${apk.url}" target="_blank">${apk.key}</a></strong></p>
+      <p>
+        <strong>
+          <a href="#" onclick="window.location.href='${apk.url}'; return false;">
+            ${apk.key}
+          </a>
+        </strong>
+      </p>
       <p>Última modificação: ${apk.lastModified.toLocaleString()}</p>
       <p>Tamanho: ${apk.sizeMB}</p>
       <hr/>

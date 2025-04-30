@@ -9,9 +9,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/minio/, ''),
       },
     },
-  },
-  server: {
     host: true,
     port: 5173
-  }
+  },
 });

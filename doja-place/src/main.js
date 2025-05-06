@@ -18,10 +18,6 @@ document.querySelector('#app').innerHTML = `
     controle de inventário e expedição de mercadorias.
   </p>
   <p>
-    Desenvolvidos por <strong>Douglas Nascimento</strong> e personalizados conforme as necessidades do Grupo Pereira,
-    esses aplicativos garantem eficiência, rastreabilidade, integração com sistemas internos e facilidade de uso para as equipes de operação.
-  </p>
-  <p>
     Utilize o filtro abaixo para escolher o ambiente desejado (Produção ou Homologação) e baixe a versão adequada para seu uso.
   </p>
   </div>
@@ -40,7 +36,7 @@ envSelect.addEventListener('change', () => {
   renderSections(envSelect.value);
 });
 
-renderSections('prod'); // Renderiza produção inicialmente
+renderSections('prod'); 
 
 function renderSections(env) {
   const container = document.getElementById('apk-sections');

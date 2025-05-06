@@ -6,9 +6,12 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const s3Client = new S3Client({
-  region: 'us-east-1',
+  region: import.meta.env.VITE_S3_REGION,
+  endpoint: import.meta.env.VITE_S3_ENDPOINT,
   forcePathStyle: true,
   credentials: {
+    accessKeyId: import.meta.env.VITE_S3_ACCESS_KEY,
+    secretAccessKey: import.meta.env.VITE_S3_SECRET_KEY,
   },
 });
 
